@@ -21,6 +21,240 @@
     />
   </head>
   <body>
+    <script>
+      "use strict";
+
+      var _createClass = (function () {
+        function defineProperties(target, props) {
+          for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || false;
+            descriptor.configurable = true;
+            if ("value" in descriptor) descriptor.writable = true;
+            Object.defineProperty(target, descriptor.key, descriptor);
+          }
+        }
+        return function (Constructor, protoProps, staticProps) {
+          if (protoProps) defineProperties(Constructor.prototype, protoProps);
+          if (staticProps) defineProperties(Constructor, staticProps);
+          return Constructor;
+        };
+      })();
+
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      var Progress = (function () {
+        function Progress() {
+          var param =
+            arguments.length <= 0 || arguments[0] === undefined
+              ? {}
+              : arguments[0];
+
+          _classCallCheck(this, Progress);
+
+          this.timestamp = null;
+          this.duration = param.duration || Progress.CONST.DURATION;
+          this.progress = 0;
+          this.delta = 0;
+          this.progress = 0;
+          this.isLoop = !!param.isLoop;
+
+          this.reset();
+        }
+
+        Progress.prototype.reset = function reset() {
+          this.timestamp = null;
+        };
+
+        Progress.prototype.start = function start(now) {
+          this.timestamp = now;
+        };
+
+        Progress.prototype.tick = function tick(now) {
+          if (this.timestamp) {
+            this.delta = now - this.timestamp;
+            this.progress = Math.min(this.delta / this.duration, 1);
+
+            if (this.progress >= 1 && this.isLoop) {
+              this.start(now);
+            }
+
+            return this.progress;
+          } else {
+            return 0;
+          }
+        };
+
+        _createClass(Progress, null, [
+          {
+            key: "CONST",
+            get: function get() {
+              return {
+                DURATION: 1000,
+              };
+            },
+          },
+        ]);
+
+        return Progress;
+      })();
+
+      var Confetti = (function () {
+        function Confetti(param) {
+          _classCallCheck(this, Confetti);
+
+          this.parent = param.elm || document.body;
+          this.canvas = document.createElement("canvas");
+          this.ctx = this.canvas.getContext("2d");
+          this.width = param.width || this.parent.offsetWidth;
+          this.height = param.height || this.parent.offsetHeight;
+          this.length = param.length || Confetti.CONST.PAPER_LENGTH;
+          this.yRange = param.yRange || this.height * 2;
+          this.progress = new Progress({
+            duration: param.duration,
+            isLoop: true,
+          });
+          this.rotationRange =
+            typeof param.rotationLength === "number" ? param.rotationRange : 10;
+          this.speedRange =
+            typeof param.speedRange === "number" ? param.speedRange : 10;
+          this.sprites = [];
+
+          this.canvas.style.cssText = [
+            "display: block",
+            "position: fixed",
+            "top: 0",
+            "left: 0",
+            "pointer-events: none",
+          ].join(";");
+
+          this.render = this.render.bind(this);
+
+          this.build();
+
+          this.parent.append(this.canvas);
+          this.progress.start(performance.now());
+
+          requestAnimationFrame(this.render);
+        }
+
+        Confetti.prototype.build = function build() {
+          for (var i = 0; i < this.length; ++i) {
+            var canvas = document.createElement("canvas"),
+              ctx = canvas.getContext("2d");
+
+            canvas.width = Confetti.CONST.SPRITE_WIDTH;
+            canvas.height = Confetti.CONST.SPRITE_HEIGHT;
+
+            canvas.position = {
+              initX: Math.random() * this.width,
+              initY: -canvas.height - Math.random() * this.yRange,
+            };
+
+            canvas.rotation =
+              this.rotationRange / 2 - Math.random() * this.rotationRange;
+            canvas.speed =
+              this.speedRange / 2 + Math.random() * (this.speedRange / 2);
+
+            ctx.save();
+            ctx.fillStyle =
+              Confetti.CONST.COLORS[
+                (Math.random() * Confetti.CONST.COLORS.length) | 0
+              ];
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            this.sprites.push(canvas);
+          }
+        };
+
+        Confetti.prototype.render = function render(now) {
+          var progress = this.progress.tick(now);
+
+          this.canvas.width = this.width;
+          this.canvas.height = this.height;
+
+          for (var i = 0; i < this.length; ++i) {
+            this.ctx.save();
+            this.ctx.translate(
+              this.sprites[i].position.initX +
+                this.sprites[i].rotation *
+                  Confetti.CONST.ROTATION_RATE *
+                  progress,
+              this.sprites[i].position.initY +
+                progress * (this.height + this.yRange)
+            );
+            this.ctx.rotate(this.sprites[i].rotation);
+            this.ctx.drawImage(
+              this.sprites[i],
+              (-Confetti.CONST.SPRITE_WIDTH *
+                Math.abs(
+                  Math.sin(progress * Math.PI * 2 * this.sprites[i].speed)
+                )) /
+                2,
+              -Confetti.CONST.SPRITE_HEIGHT / 2,
+              Confetti.CONST.SPRITE_WIDTH *
+                Math.abs(
+                  Math.sin(progress * Math.PI * 2 * this.sprites[i].speed)
+                ),
+              Confetti.CONST.SPRITE_HEIGHT
+            );
+            this.ctx.restore();
+          }
+
+          requestAnimationFrame(this.render);
+        };
+
+        _createClass(Confetti, null, [
+          {
+            key: "CONST",
+            get: function get() {
+              return {
+                SPRITE_WIDTH: 9,
+                SPRITE_HEIGHT: 16,
+                PAPER_LENGTH: 100,
+                DURATION: 8000,
+                ROTATION_RATE: 50,
+                COLORS: [
+                  "#D01E3E",
+                  "##FEA80A",
+                  "#F28915",
+                  "#0A4D56",
+                  "#3d3d3d",
+                ],
+              };
+            },
+          },
+        ]);
+
+        return Confetti;
+      })();
+
+      (function () {
+        var DURATION = 20000,
+          LENGTH = 120;
+
+        new Confetti({
+          width: window.innerWidth,
+          height: window.innerHeight,
+          length: LENGTH,
+          duration: DURATION,
+        });
+
+        setTimeout(function () {
+          new Confetti({
+            width: window.innerWidth,
+            height: window.innerHeight,
+            length: LENGTH,
+            duration: DURATION,
+          });
+        }, DURATION / 4);
+      })();
+    </script>
     <div id="home">
       <img
         class="imglogo"
@@ -45,60 +279,95 @@
         >Clique aqui para saber mais</a
       >
     </div>
-    <div id="pets">
-      <h2>Nós e algumas histórias</h2>
-      <div class="card">
-        <img
-          src="./img/norma.png"
-          alt="Norma é uma cachorrinha branca e preta que esta com uma roupinha laranja e com a boquinha abertinha"
-        />
-        <div>
-          <h3>Norma</h3>
-          <h5>
-            Norma foi atropelada e ficou paraplégica, ficou um bom tempo conosco
-            à espera de um lar, ganhou uma cadeirinha e foi adotada pela
-            @1hosana, que não teve preconceito por ela não ter raça, já ser
-            adulta e paraplégica. <br />
-            Por esses finais felizes que nós não podemos parar. <br />Todos
-            merecem ter essa chanc
-          </h5>
+    <canvas></canvas>
+    <div class="container">
+      <div id="pets">
+        <h2>Nós e algumas histórias</h2>
+        <div class="card">
+          <img
+            src="./img/norma.png"
+            alt="Norma é uma cachorrinha branca e preta que esta com uma roupinha laranja e com a boquinha abertinha"
+          />
+          <div>
+            <h3>Norma</h3>
+            <h5>
+              Norma foi atropelada e ficou paraplégica, ficou um bom tempo
+              conosco à espera de um lar, ganhou uma cadeirinha e foi adotada
+              pela @1hosana, que não teve preconceito por ela não ter raça, já
+              ser adulta e paraplégica. <br />
+              Por esses finais felizes que nós não podemos parar. <br />Todos
+              merecem ter essa chanc
+            </h5>
+          </div>
+        </div>
+        <div class="card">
+          <img
+            src="./img/scar.png"
+            alt="Norma é uma cachorrinha branca e preta que esta com uma roupinha laranja e com a boquinha abertinha"
+          />
+          <div>
+            <h3>Scar</h3>
+            <h5>
+              Quando resgatamos ele achamos que estava queimado, mas ao levá-lo
+              no hospital veterinária descobrimos que era um estágio de sarna
+              muito agravado. Ele começou o tratamento final de maio e hoje,
+              menos de dois meses depois, ele está curado graças a ajuda de
+              todos<br />
+              Scar <strong>procura</strong> um lar com muito amor e sem acesso a
+              rua pela sua segurança.
+            </h5>
+          </div>
+        </div>
+        <div class="galeria">
+          <img
+            src="./img/Group 7.png"
+            alt="Gatinho branco e preto com apenas o rostinho na foto e olhinhos amarelados"
+          />
+          <img
+            src="./img/Group 11.png"
+            alt="Cachorrinho com uma rostinho de quem fez arte com uma mistura de cor caramelo e branco"
+          />
+          <img
+            src="./img/Group 12.png"
+            alt="Gatinho com listas amarelas e olhinhos azuis olhando para a camera também"
+          />
+          <img
+            src="./img/Group 13.png"
+            alt="Cachorrinho com um sorrisinho meio assustado e uma das orelinhas levantadas cores preto e amarelo"
+          />
+          <img
+            src="./img/Group 14.png"
+            alt="Gatinho cinza com algumas listras escuras e olhinhos verdes"
+          />
+          <img
+            src="./img/Group 15.png"
+            alt="Cachorrinho amarelo dourado com um sorrisinho muito fofo olhando para a camera"
+          />
+          <img
+            src="./img/Group 16.png"
+            alt="Gatinho preto e olhos amarelos com uma carinha de perdido/desconsolado"
+          />
+          <img
+            src="./img/Group 17.png"
+            alt="Cachorrinho de maior quantidade de pelos nas cores marrom e cinza e de pequeno porte"
+          />
         </div>
       </div>
-      <div class="card">
-        <img
-          src="./img/scar.png"
-          alt="Norma é uma cachorrinha branca e preta que esta com uma roupinha laranja e com a boquinha abertinha"
-        />
-        <div>
-          <h3>Scar</h3>
-          <h5>
-            Quando resgatamos ele achamos que estava queimado, mas ao levá-lo no
-            hospital veterinária descobrimos que era um estágio de sarna muito
-            agravado. Ele começou o tratamento final de maio e hoje, menos de
-            dois meses depois, ele está curado graças a ajuda de todos<br />
-            Scar <strong>procura</strong> um lar com muito amor e sem acesso a
-            rua pela sua segurança.
-          </h5>
-        </div>
+      <div id="contato">
+        <h2>Outras informações</h2>
+        <a href="https://www.instagram.com/projetolunaar/?hl=en">Instagram</a>
+        <a href="https://www.padrim.com.br/projetolunaar">Padrim</a>
+        <a href="https://picpay.me/assinaturaprojetolunaar"
+          >Assinatura PicPay</a
+        >
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSe_yIC29c1HczKb120v6Ub9ZZ5cIXcIvrHe9mNpT2qXgAsSlQ/viewform"
+          >Pontos de Coleta Frascos de Desodorantes</a
+        >
+        <a href="https://www.patasdeluxo.com.br/index.asp"
+          >Cupom Desconto: LUNAAR10</a
+        >
       </div>
-      <div class="galeria">
-        <img src="./img/Group 7.png" alt="" />
-        <img src="./img/Group 11.png" alt="" />
-        <img src="./img/Group 12.png" alt="" />
-        <img src="./img/Group 13.png" alt="" />
-        <img src="./img/Group 14.png" alt="" />
-        <img src="./img/Group 15.png" alt="" />
-        <img src="./img/Group 16.png" alt="" />
-        <img src="./img/Group 17.png" alt="" />
-      </div>
-    </div>
-    <div id="contato">
-      <h2>Outras informações</h2>
-      <a href="">Instagram</a>
-      <a href="">Padrim</a>
-      <a href="">Assinatura PicPay</a>
-      <a href="">Pontos de Coleta Frascos de Desodorantes</a>
-      <a href="">Cupom Desconto: LUNAAR10</a>
     </div>
     <footer><h5>Todos os direitos reservados @LUNAAR</h5></footer>
   </body>
