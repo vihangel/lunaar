@@ -1,0 +1,141 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-style: none;
+  text-decoration: none;
+  font-weight: none;
+}
+:root {
+  font-size: 60%;
+  --amarelo: #f28915;
+  --bgclaro: #f8f8f8;
+  --bgemedio: #dfdfdf;
+  --cinza: #3d3d3d;
+}
+h1 {
+  font-size: 3rem;
+}
+h2 {
+  font-family: "Chango", cursive;
+  font-size: 2rem;
+  line-height: 140%;
+  text-align: justify;
+  letter-spacing: 0.015em;
+  color: var(--cinza);
+}
+h3 {
+  font-family: "Chango", cursive;
+  font-size: 1.5rem;
+  line-height: 140%;
+  text-align: justify;
+  letter-spacing: 0.015em;
+  color: var(--amarelo);
+}
+h4 {
+  font-family: "Inter", sans-serif;
+  font-size: 2rem;
+  line-height: 2.5rem;
+  text-align: justify;
+  letter-spacing: 0.005em;
+  color: var(--cinza);
+}
+strong {
+  color: var(--amarelo);
+}
+
+/*  HOME  */
+#home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  background-color: var(--bgemedio);
+}
+.imglogo {
+  height: 90px;
+}
+.imgdog {
+  height: 240px;
+}
+a {
+  width: 100%;
+  padding: 15px 0;
+  text-align: center;
+  background-color: var(--amarelo);
+  color: var(--bgclaro);
+  border-radius: 25px;
+  font-family: "Inter", sans-serif;
+  font-size: 2rem;
+  line-height: 2.5rem;
+  letter-spacing: 0.005em;
+}
+/*  PETS  */
+#pets {
+  display: flex;
+  gap: 30px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  background-color: var(--bgclaro);
+}
+.card {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #f8f8f8;
+  box-shadow: 0px 4px 13px rgba(0, 0, 0, 0.15);
+  border-radius: 26px;
+  width: 100%;
+
+  gap: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.card img {
+  border-radius: 26px;
+  height: 100px;
+  width: 100px;
+}
+.galeria {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+}
+.galeria img {
+  height: 85px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+}
+/*  CONTTATO  */
+#contato {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  background-color: var(--bgclaro);
+  margin-bottom: 10px;
+}
+#contato h2 {
+  padding-bottom: 10px;
+}
+/*  FOOTER  */
+footer {
+  background: var(--amarelo);
+  padding: 10px 0;
+  color: var(--bgclaro);
+  padding-left: 20px;
+}
